@@ -1,199 +1,294 @@
 #include <iostream>
 #include <string>
-#include <unordered_map>
-
-class LoginSystem {
-private:
-    std::unordered_map<std::string, std::string> credentials;
-public:
-    LoginSystem() {
-        // In a real application, credentials should be securely stored and hashed
-        credentials["admin"] = "password123";
-    }
-
-    bool login() {
-        std::string username, password;
-        std::cout << "Enter username: ";
-        std::cin >> username;
-        std::cout << "Enter password: ";
-        std::cin >> password;
-
-        if (credentials.find(username) != credentials.end() && credentials[username] == password) {
-            return true;
-        } else {
-            std::cout << "Invalid credentials.\n";
-            return false;
-        }
-    }
-};
-
-class Menu {
-public:
-    void displayMenu() {
-        std::cout << "1. Add a new car\n";
-        std::cout << "2. Modify car data\n";
-        std::cout << "3. Display all cars\n";
-        std::cout << "4. Sort cars\n";
-        std::cout << "5. Search for a car by ID\n";
-        std::cout << "6. Track the number of cars sold\n";
-        std::cout << "7. Remove a car record\n";
-        std::cout << "8. Sort cars by best-selling brand\n";
-        std::cout << "9. Generate a bill\n";
-        std::cout << "10. Search for issued bills\n";
-        std::cout << "11. Generate purchase report\n";
-        std::cout << "12. Exit\n";
-    }
-};
-
-
-#include <iostream>
-#include <fstream>
 #include <vector>
-#include <ctime>
-#include <cstdlib>
-#include <algorithm>
+#include <fstream>
+#include <sstream>
 
-class Car {
-public:
-    std::string carID;
-    std::string brand;
-    std::string color;
-    std::string country;
-    int year;
-    double price;
-
-    Car(std::string brand, std::string color, std::string country, int year, double price) 
-        : brand(brand), color(color), country(country), year(year), price(price) {
-        generateCarID();
-    }
-
-    void generateCarID() {
-        srand(time(0));
-        int randomNum = rand() % 1000000;
-        carID = brand.substr(0, 3) + std::to_string(randomNum);
-    }
-
-    static void addCar(std::vector<Car>& cars) {
-        std::string brand, color, country;
-        int year;
-        double price;
-
-        std::cout << "Enter brand: ";
-        std::cin >> brand;
-        std::cout << "Enter color: ";
-        std::cin >> color;
-        std::cout << "Enter country of manufacture: ";
-        std::cin >> country;
-        std::cout << "Enter year of manufacture: ";
-        std::cin >> year;
-        std::cout << "Enter price: ";
-        std::cin >> price;
-
-        Car car(brand, color, country, year, price);
-        cars.push_back(car);
-
-        std::ofstream outfile("cars.txt", std::ios::app);
-        outfile << car.carID << " " << car.brand << " " << car.color << " " << car.country << " "
-                << car.year << " " << car.price << std::endl;
-        outfile.close();
-    }
-
-    static void displayCars(const std::vector<Car>& cars) {
-        for (const auto& car : cars) {
-            std::cout << "ID: " << car.carID << ", Brand: " << car.brand
-                      << ", Color: " << car.color << ", Country: " << car.country
-                      << ", Year: " << car.year << ", Price: " << car.price << std::endl;
+using namespace std;
+class person{
+    private:
+        string id;
+        string name;
+        string password;
+    public:
+        person() = default;
+        person(string ID, string n, string p){
+            id = ID;
+            name = n;
+            password = p;
         }
-    }
-
-    static void sortCarsByBrand(std::vector<Car>& cars) {
-        std::sort(cars.begin(), cars.end(), [](const Car& a, const Car& b) {
-            return a.brand < b.brand;
-        });
-    }
-
-    static void sortCarsByPrice(std::vector<Car>& cars) {
-        std::sort(cars.begin(), cars.end(), [](const Car& a, const Car& b) {
-            return a.price < b.price;
-        });
-    }
-
-    static Car* searchByID(std::vector<Car>& cars, const std::string& id) {
-        for (auto& car : cars) {
-            if (car.carID == id) {
-                return &car;
+        void setID(string ID){
+            id = ID;
+        }
+        string getID(){
+            return id;
+        }
+        void setName(string n){
+            name = n;
+        }
+        string getName(){
+            return name;
+        }
+        void setPassword(string p){
+            password = p;
+        }
+        string getPassword(){
+            return password;
+        }
+};
+class allClient{
+    private:
+        vector <person> clients;
+    public:
+        allClient(){
+            getClient();
+        }
+        void getClient() {
+            string clientPath = "client.txt";
+            ifstream clientFile(clientPath);
+            if (!clientFile) {
+                cout << "Error opening " << clientPath << endl;
+            } 
+            else {
+                string line;
+                person client;
+                string temp;
+                while (getline(clientFile, line)) {
+                    stringstream ss(line);
+                    getline(ss, temp, ',');
+                    client.setID(temp);
+                    getline(ss, temp, ',');
+                    client.setName(temp);
+                    getline(ss, temp, ',');
+                    client.setPassword(temp);
+                    clients.push_back(client);
+                }
             }
         }
-        return nullptr;
+        void printClient(){
+            for(int i = 0; i < clients.size(); i++){
+                cout << clients[i].getID() << clients[i].getName() << endl;
+            }
+        }
+        void sorting(){
+
+        }
+        void binarySearch(){
+
+        }
+        void linearSearch(){
+
+        }
+};
+class allCustomer{
+    private:
+        vector <person> admins;
+    public:
+        void getAdmin(){
+            string adminPath = "admin.txt";
+            ifstream adminFile(adminPath);
+            if (!adminFile) {
+                cout << "Error opening " << adminPath << endl;
+            } 
+            else {
+                string line;
+                person admin;
+                string temp;
+                while (getline(adminFile, line)) {
+                    stringstream ss(line);
+                    getline(ss, temp, ',');
+                    admin.setID(temp);
+                    getline(ss, temp, ',');
+                    admin.setName(temp);
+                    getline(ss, temp, ',');
+                    admin.setPassword(temp);
+                    admins.push_back(admin);
+                }
+            }
+        }
+        void printAdmin(){
+            for(int i = 0; i < admins.size(); i++){
+                cout << admins[i].getID() << admins[i].getName() << endl;
+            }
+        }
+        void sorting(){
+            
+        }
+        void binarySearch(){
+
+        }
+        void linearSearch(){
+            
+        }
+};
+class car {
+    private:
+        string id;
+        string brand;
+        string color;
+        string country;
+        string year;
+        int price;
+
+public:
+    car() = default;
+
+    car(string ID, string BRAND, string COLOUR, string COM, string YOM, int PRICE) {
+        id = ID;
+        brand = BRAND;
+        color = COLOUR;
+        country = COM;
+        year = YOM;
+        price = PRICE;
+    }
+
+    void setID(string ID) {
+        id = ID;
+    }
+
+    string getID() const {
+        return id;
+    }
+
+    void setBrand(string b) {
+        brand = b;
+    }
+
+    string getBrand() const {
+        return brand;
+    }
+
+    void setColor(string c) {
+        color = c;
+    }
+
+    string getColor() const {
+        return color;
+    }
+
+    void setCountry(string c) {
+        country = c;
+    }
+
+    string getCountry() const {
+        return country;
+    }
+
+    void setYear(string y) {
+        year = y;
+    }
+
+    string getYear() const {
+        return year;
+    }
+
+    void setPrice(string p) {
+        price = stoi(p);
+    }
+
+    void setPrice(int p) {
+        price = p;
+    }
+
+    int getPrice() const {
+        return price;
+    }
+};
+
+class Allcar {
+private:
+    vector<car> cars;
+    vector<car> copy_cars;
+
+public:
+    Allcar(){
+        getCar();
+    }
+    void getCar() {
+        string carPath = "car.txt";
+        ifstream carFile(carPath);
+        if (!carFile) {
+            cout << "Error opening " << carPath << endl;
+        } 
+        else {
+            string line;
+            car c;
+            while (getline(carFile, line)) {
+                stringstream ss(line);
+                string temp;
+                getline(ss, temp, ',');
+                c.setID(temp);
+                getline(ss, temp, ',');
+                c.setBrand(temp);
+                getline(ss, temp, ',');
+                c.setColor(temp);
+                getline(ss, temp, ',');
+                c.setCountry(temp);
+                getline(ss, temp, ',');
+                c.setYear(temp);
+                getline(ss, temp, ',');
+                c.setPrice(temp);
+                cars.push_back(c);
+            }
+        }
+    }
+
+    void addCar(const car &c) {
+        cars.push_back(c);
+    }
+
+    void mergeSort() {
+        copy_cars = cars;
+        // Implement merge sort here
+    }
+
+    void quickSort() {
+        copy_cars = cars;
+        // Implement quick sort here
+    }
+
+    void radixSort() {
+        copy_cars = cars;
+        // Implement radix sort here
+    }
+
+    void selectionSort() {
+        copy_cars = cars;
+        // Implement selection sort here
+    }
+
+    void bubbleSort() {
+        copy_cars = cars;
+        // Implement bubble sort here
+    }
+
+    void linearSearch() {
+        // Implement linear search here
+    }
+
+    void binarySearch() {
+        // Implement binary search here
+    }
+
+    void printCars() const {
+        for (const auto &c : cars) {
+            cout << c.getID() << ", " << c.getBrand() << ", " << c.getColor() << ", "
+                 << c.getCountry() << ", " << c.getYear() << ", " << c.getPrice() << endl;
+        }
     }
 };
 
 int main() {
-    LoginSystem loginSystem;
-    Menu menu;
-    std::vector<Car> cars;
+    Allcar allCars;
+    allCars.printCars();
+    cout << endl;
+    // Adding a new car
+    car newCar("TOY949304939", "Toyota", "White", "Japan", "2021", 30000);
+    allCars.addCar(newCar);
+    allCars.printCars();
 
-    if (!loginSystem.login()) {
-        return 0;
-    }
+    allClient clients;
+    clients.printClient();
 
-    int choice;
-    while (true) {
-        menu.displayMenu();
-        std::cout << "Enter your choice: ";
-        std::cin >> choice;
-
-        switch (choice) {
-            case 1:
-                Car::addCar(cars);
-                break;
-            case 2:
-                // Implement modify car data functionality
-                break;
-            case 3:
-                Car::displayCars(cars);
-                break;
-            case 4:
-                // Implement sorting functionality
-                break;
-            case 5:
-                {
-                    std::string id;
-                    std::cout << "Enter car ID: ";
-                    std::cin >> id;
-                    Car* car = Car::searchByID(cars, id);
-                    if (car) {
-                        std::cout << "Car found: " << car->brand << " " << car->color << " " << car->country << " "
-                                  << car->year << " " << car->price << std::endl;
-                    } else {
-                        std::cout << "Car not found.\n";
-                    }
-                }
-                break;
-            case 6:
-                // Implement track number of cars sold functionality
-                break;
-            case 7:
-                // Implement remove car record functionality
-                break;
-            case 8:
-                // Implement sort cars by best-selling brand functionality
-                break;
-            case 9:
-                // Implement generate bill functionality
-                break;
-            case 10:
-                // Implement search for issued bills functionality
-                break;
-            case 11:
-                // Implement generate purchase report functionality
-                break;
-            case 12:
-                return 0;
-            default:
-                std::cout << "Invalid choice. Please try again.\n";
-        }
-    }
     return 0;
 }
-
