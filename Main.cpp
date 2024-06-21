@@ -4,7 +4,13 @@
 #include <fstream>
 #include <sstream>
 
+
 using namespace std;
+class sortingNsearch{
+    public:
+        
+
+};
 class person{
     private:
         string id;
@@ -36,14 +42,14 @@ class person{
             return password;
         }
 };
-class allClient{
+class allClient : public person{
     private:
         vector <person> clients;
     public:
         allClient(){
-            getClient();
+            saveClient();
         }
-        void getClient() {
+        void saveClient() {
             string clientPath = "client.txt";
             ifstream clientFile(clientPath);
             if (!clientFile) {
@@ -65,30 +71,34 @@ class allClient{
                 }
             }
         }
+        vector <person> &getClients(){
+            return clients;
+        }
         void printClient(){
             for(int i = 0; i < clients.size(); i++){
                 cout << clients[i].getID() << clients[i].getName() << endl;
             }
         }
-        void selectionSort(int arr[], int n){
+        void selectionSort(){
             int i, j, min_idx;
 
             // One by one move boundary of
             // unsorted subarray
-            for (i = 0; i < n - 1; i++) {
+            
+            for (i = 0; i < clients.size(); i++) {
 
                 // Find the minimum element in
                 // unsorted array
                 min_idx = i;
-                for (j = i + 1; j < n; j++) {
-                    if (arr[j] < arr[min_idx])
+                for (j = i + 1; j < clients.size(); j++) {
+                    if (clients[j].getID() < clients[min_idx].getID())
                         min_idx = j;
                 }
 
                 // Swap the found minimum element
                 // with the first element
                 if (min_idx != i)
-                    swap(arr[min_idx], arr[i]);
+                    swap(clients[min_idx], clients[i]);
             }
         }
 
@@ -144,16 +154,16 @@ class allClient{
             // Sorting the right part
             quickSort(arr, p + 1, end);
         }
-        int binarySearch(int arr[], int low, int high, int x){
+        int binarySearch(int low, int high, string x){
             while (low <= high) {
                 int mid = low + (high - low) / 2;
 
                 // Check if x is present at mid
-                if (arr[mid] == x)
+                if (clients[mid].getID() == x)
                     return mid;
 
                 // If x greater, ignore left half
-                if (arr[mid] < x)
+                if (clients[mid].getID() < x)
                     low = mid + 1;
 
                 // If x is smaller, ignore right half
@@ -162,22 +172,23 @@ class allClient{
             }
 
             // If we reach here, then element was not present
+            cout << 1 << endl;
             return -1;
         }
-        int LinearSearch(int arr[], int n, int x)
+        int LinearSearch(string x)
         {
             int i;
-            for (i = 0; i < n; i++)
-                if (arr[i] == x)
+            for (i = 0; i < clients.size(); i++)
+                if (clients[i].getID() == x)
                     return i;
             return -1;
         }
 };
-class allCustomer{
+class allAdmin : public person{
     private:
         vector <person> admins;
     public:
-        void getAdmin(){
+        void saveAdmin(){
             string adminPath = "admin.txt";
             ifstream adminFile(adminPath);
             if (!adminFile) {
@@ -198,6 +209,9 @@ class allCustomer{
                     admins.push_back(admin);
                 }
             }
+        }
+        vector <person> &getAdmin(){
+            return admins;
         }
         void printAdmin(){
             for(int i = 0; i < admins.size(); i++){
@@ -222,23 +236,26 @@ class car {
         string country;
         string year;
         int price;
+        void generateID(){
+            id = id.substr(0,3);
+            for(int i = 0; i < 13; i++){
+                id += to_string(rand()%10);
+            }
+        }
 
 public:
     car() = default;
 
     car(string ID, string BRAND, string COLOUR, string COM, string YOM, int PRICE) {
-        id = ID;
         brand = BRAND;
         color = COLOUR;
         country = COM;
         year = YOM;
         price = PRICE;
     }
-
-    void setID(string ID) {
+    void setID(string ID){
         id = ID;
     }
-
     string getID() const {
         return id;
     }
@@ -282,7 +299,6 @@ public:
     void setPrice(int p) {
         price = p;
     }
-
     int getPrice() const {
         return price;
     }
@@ -295,9 +311,9 @@ private:
 
 public:
     Allcar(){
-        getCar();
+        saveCar();
     }
-    void getCar() {
+    void saveCar() {
         string carPath = "car.txt";
         ifstream carFile(carPath);
         if (!carFile) {
@@ -324,8 +340,11 @@ public:
                 cars.push_back(c);
             }
         }
+        copy_cars = cars;
     }
-
+    vector <car> &getCar(){
+        return copy_cars;
+    }
     void addCar(const car &c) {
         cars.push_back(c);
     }
@@ -452,24 +471,183 @@ public:
         }
 
     void printCars() const {
-        for (const auto &c : cars) {
+        for (const auto &c : copy_cars) {
             cout << c.getID() << ", " << c.getBrand() << ", " << c.getColor() << ", "
                  << c.getCountry() << ", " << c.getYear() << ", " << c.getPrice() << endl;
         }
     }
 };
-
-int main() {
-    Allcar allCars;
-    allCars.printCars();
-    cout << endl;
-    // Adding a new car
-    car newCar("TOY949304939", "Toyota", "White", "Japan", "2021", 30000);
-    allCars.addCar(newCar);
-    allCars.printCars();
-
+class carSystem{
+    private:
     allClient clients;
-    clients.printClient();
+    Allcar cars;
+    allAdmin admins;
+    person currentUser;
+    vector <car> chosenCar;
+    int type;
 
-    return 0;
+    public:
+    void run(){
+        int choice;
+        int flag = 0;
+        string line;
+        while(1){
+            if(flag == 0){
+                cout << "1) Client" << endl;
+                cout << "2) Admin" << endl;
+                cout << "-1) Exit" << endl;
+                cout << "choice> ";
+                cin >> choice;
+                switch(choice){
+                    case 1:
+                        if(login(1)){
+                            type = 1;
+                            break;
+                        }
+                        continue;
+                    case 2:
+                        if(login(2)){
+                            type = 2;
+                            break;
+                        }
+                        continue;
+                    case -1:
+                        flag = 1;
+                        break;
+                    default:
+                        continue;
+                }
+            }
+            cout << "Welcome to SHARK BEE" << endl;
+            cout << currentUser.getName() << endl;
+            if(flag == 1){
+                cout << "Please visit us again";
+                break;
+            }
+            if(type == 1){
+                clientPage();
+            }
+            if(type == 2){
+                // admin view
+            }
+        }
+    }
+    bool login(int type){
+        string line;
+        int temp;
+
+        if(type == 1){
+            cout << "ID> ";
+            cin >> line;
+            clients.selectionSort();
+            temp = clients.binarySearch(0, clients.getClients().size()-1, line);
+            if(temp >= 0){
+                currentUser = clients.getClients()[temp];
+                cout << "Password> ";
+                cin >> line;
+                if(line == currentUser.getPassword()){
+                    return 1;
+                }
+            }
+            return 0;
+        }
+        else if(type == 2){
+            cout << "ID> ";
+            cin >> line;
+            // change to function
+            for(int i = 0; i < admins.getAdmin().size(); i++){
+                if(line == admins.getAdmin()[i].getID()){
+                    cout << "Password> ";
+                    cin >> line;
+                    if(line == admins.getAdmin()[i].getPassword()){
+                        return true;
+                    }
+                    cout << "Incorrect Password :)" << endl;
+                    break;
+                }
+            }
+        }
+        return false;
+    }
+    void clientPage(){
+        int choice;
+        int flag;
+        string line;
+        while(1){
+            cars.printCars();
+            cout << "Sort by" << endl;
+            cout << "1) ID" << endl;
+            cout << "2) Price" << endl;
+            cout << "3) Brand" << endl;
+            cout << "4) Select Purchase" << endl;
+            cout << "5) Checkout" << endl;
+            cout << "> ";
+            cin >> choice;
+            switch (choice)
+            {
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                selectPurchase();
+                break;
+            case 5:
+                flag = 1;
+            default:
+                cout << "Invalid Input";
+                continue; 
+            }
+            if(flag == 1){
+
+            }
+
+        }
+    }
+    void selectPurchase(){
+        string line;
+        int flag = 0;
+        while(flag == 0){
+            cout << "Enter Car ID> ";
+            cin >> line;
+            for(int i = 0; i < cars.getCar().size(); i++){
+                if(line == cars.getCar()[i].getID()){
+                    chosenCar.push_back(cars.getCar()[i]);
+                    flag = 1;
+                }
+            }
+            if(!flag)
+            cout << "Incorrect Car ID" << endl;
+        }
+    }
+    void confirmPurchase(){
+        string flag;
+        cout << "       Your Purchase" << endl;
+        cout << "----------------------------" << endl;
+        for(int i = 0; i < chosenCar.size(); i++){
+            cout << "ID: " << chosenCar[i].getID() << endl;
+            cout << "Brand: " << chosenCar[i].getBrand() << endl;
+            cout << "Country of manufacture: " << chosenCar[i].getCountry() << endl;
+            cout << "Year of Manufacture: " << chosenCar[i].getYear() << endl;
+            cout << "Color: " << chosenCar[i].getColor() << endl;
+            cout << "Price: " << chosenCar[i].getPrice() << endl;
+            cout << "---------------------------------------------" << endl;
+        }
+        cout << "Confirm Purchase [Y/N]" << endl;
+        cout << "> ";
+        cin >> flag;
+        if(flag ==  "Y"){
+
+        }
+    }
+    void adminPage(){
+
+    }
+};
+int main(){
+    carSystem sys;
+    sys.run();
+
 }
