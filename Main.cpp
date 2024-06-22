@@ -350,35 +350,6 @@ class Allcar{
         vector <car> &getCar(){
             return copy_cars;
         }
-        void addCar(){
-            string brand, color, country, year;
-            int price;
-            string carPath = "car.txt";
-            ofstream writeCar;
-            writeCar.open(carPath, ios::app);
-            if(!writeCar){
-                cout << "Error opening " << carPath << endl;
-            }
-            else{
-                cout << "-----------------------------------------" << endl;
-                cout << "Brand of the car: ";
-                cin >> brand;
-                cout << "Color of the car: ";
-                cin >> color;
-                cout << "Country of the car produced: ";
-                cin >> country;
-                cout << "Year of the car manufactured: ";
-                cin >> year;
-                cout << "Price of the car: ";
-                cin >> price;
-                car cw(brand, color, country, year, price);
-                writeCar << endl << cw.getID() << "," << cw.getBrand() << "," << cw.getColor() << "," << cw.getCountry() << "," << cw.getYear() << "," << cw.getPrice();
-                cout << "Generated car ID" << endl;
-                cars.push_back(cw);
-            }
-            cout << "-----------------------------------------" << endl;
-            copy_cars = cars;
-        }
 
         void mergeSort(){
             copy_cars = cars;
@@ -680,7 +651,6 @@ class carSystem{
             int flag;
             string line;
             while(1){
-                cars.printCars();
                 cout << "Edit page" << endl;
                 cout << "1) Add new car" << endl;
                 cout << "2) Modify car data" << endl;
@@ -691,13 +661,13 @@ class carSystem{
                 cin >> choice;
                 switch (choice){
                 case 1:
-                    cars.addCar();
+                    addCar();
                     break;
                 case 2:
                     editCar();
                     break;
                 case 3:
-                    removeCarRecord();
+                    removeCar();
                     break;
                 case 4:
                     break;
@@ -713,47 +683,84 @@ class carSystem{
             }
         }
 
+        void addCar(){
+            string brand, color, country, year, newID;
+            int num, price;
+            string carPath = "car.txt";
+            ofstream writeCar;
+            writeCar.open(carPath, ios::app);
+            cout << "How many car you want to add: ";
+            cin >> num;
+            for(int i = 0; i < num; i++){
+                cout << "-----------------------------------------" << endl;
+                cout << "Brand of the car: ";
+                cin >> brand;
+                cout << "Color of the car: ";
+                cin >> color;
+                cout << "Country of the car produced: ";
+                cin >> country;
+                cout << "Year of the car manufactured: ";
+                cin >> year;
+                cout << "Price of the car: ";
+                cin >> price;
+                car carcar(brand, color, country, year, price);
+                cout << "Generated car ID" << endl;
+                writeCar << endl << carcar.getID() << "," << carcar.getBrand() << "," << carcar.getColor() << "," << carcar.getCountry() << "," << carcar.getYear() << "," << carcar.getPrice() << endl;
+            }
+            cars.printCars();
+            writeCar.close();
+        }
+
         void editCar(){
             string carPath = "car.txt";
-            int temp;
+            string id, color;
+            int sb, price, flag;
+            bool carFound;
             ifstream file(carPath);
             cars.printCars();
-            string choice, color;
-            int sb, price;
-            cout << "Enter the car number you want to edit: ";
-            cin >> choice;
-            cars.selectionSort();
-            temp = clients.binarySearch(0, cars.getCar().size()-1, choice);
-            if(temp > 0){
-                choice = cars.getCar()[temp].getID();
-                cout << "What you want to change";
-                cout << "1) Car Colour" << endl;
-                cout << "2) Car Price" << endl;
-                cin >> sb;
-                if(sb == 1){
-                    cout << "Before change: " << cars.getCar()[temp].getColor() << endl;
-                    cout << "After change: ";
-                    cin >> color;
-                    cars.getCar()[temp].setColor(color);
+            while(1){
+                cout << "Enter the car ID you want to edit: ";
+                cin >> id;
+                for(int i = 0; i < cars.getCar().size(); i++){
+                    if(cars.getCar()[i].getID() == id){
+                        carFound = true;
+                        cout << "What you want to change" << endl;
+                        cout << "1) Car Colour" << endl;
+                        cout << "2) Car Price" << endl;
+                        cout << ">> ";
+                        cin >> sb;
+                        if(sb == 1){
+                            cout << "Before change: " << cars.getCar()[i].getColor() << endl;
+                            cout << "After change: ";
+                            cin >> color;
+                            cars.getCar()[i].setColor(color);
+                        }
+                        else if(sb == 2){
+                            cout << "Before change: " << cars.getCar()[i].getPrice() << endl;
+                            cout << "After change: ";
+                            cin >> price;
+                            cars.getCar()[i].setPrice(price);
+                        }
+                    }
                 }
-                else if(sb == 2){
-                    cout << "Before change: " << cars.getCar()[temp].getPrice() << endl;
-                    cout << "After change: ";
-                    cin >> price;
-                    cars.getCar()[temp].setPrice(price);
-                }
+                cout << "Updated datasets" << endl;
+                cars.printCars();          
                 ofstream out(carPath);
                 for(const auto& car : cars.getCar()){
                     out << car.getID() << "," << car.getBrand() << "," << car.getColor() << "," << car.getCountry() << "," << car.getYear() << "," << car.getPrice() << endl;
                 }
                 out.close();
-            }
-            else{
-                cout << "Car not found" << endl;
+                flag = 0;
+                if(flag == 0){
+                    break;
+                }
+                else{
+                    continue;
+                }
             }
         }
 
-        void removeCarRecord(){
+        void removeCar(){
             string carPath = "car.txt";
             string id;
             int flag;
@@ -771,6 +778,11 @@ class carSystem{
                 cout << "Updated datasets" << endl;
                 cars.printCars();
                 flag = 0;
+                ofstream out(carPath);
+                for(const auto& car : cars.getCar()){
+                    out << car.getID() << "," << car.getBrand() << "," << car.getColor() << "," << car.getCountry() << "," << car.getYear() << "," << car.getPrice() << endl;
+                }
+                out.close();              
                 if(flag == 0){
                     break;
                 }
@@ -780,9 +792,12 @@ class carSystem{
             }
         }
 
+        void soldCar(){
+            string soldCarPath = "soldCar.txt";
+
+        }
 };
 int main(){
     carSystem sys;
     sys.run();
-
 }
