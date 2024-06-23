@@ -1,8 +1,10 @@
 #include <iostream>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <map>
 
 using namespace std;
 
@@ -303,6 +305,7 @@ class car{
         void setPrice(int p){
             price = p;
         }
+        
         int getPrice()const{
             return price;
         }
@@ -351,22 +354,6 @@ class Allcar{
             return copy_cars;
         }
 
-        void mergeSort(){
-            copy_cars = cars;
-            // Implement merge sort here
-        }
-
-        void radixSort(){
-            copy_cars = cars;
-            // Implement radix sort here
-        }
-
-
-        void bubbleSort(){
-            copy_cars = cars;
-            // Implement bubble sort here
-        }
-
         void selectionSort(){
             copy_cars = cars;
             int min_idx;
@@ -389,66 +376,19 @@ class Allcar{
             }
         }
 
-        int partition(int arr[], int start, int end){
-            int pivot = arr[start];
-
-            int count = 0;
-            for(int i = start + 1; i <= end; i++){
-                if(arr[i] <= pivot){
-                    count++;
-                }
-            }
-            
-            // Giving pivot element its correct position
-            int pivotIndex = start + count;
-            swap(arr[pivotIndex], arr[start]);
-            
-            // Sorting left and right parts of the pivot element
-            int i = start, j = end;
-            
-            while(i < pivotIndex && j > pivotIndex){
-                while(arr[i] <= pivot){
-                    i++;
-                }
-                while(arr[j] > pivot){
-                    j--;
-                }
-                if(i < pivotIndex && j > pivotIndex){
-                    swap(arr[i++], arr[j--]);
-                }
-            }
-            
-            return pivotIndex;
-        }
-    
-        void quickSort(int arr[], int start, int end){
+        int binarySearch(int low, int high, string x){
             copy_cars = cars;
-            
-            // base case
-            if(start >= end){
-                return;
-            }
-            
-            // partitioning the array
-            int p = partition(arr, start, end);
-            
-            // Sorting the left part
-            quickSort(arr, start, p - 1);
-            
-            // Sorting the right part
-            quickSort(arr, p + 1, end);
-        }
-        int binarySearch(int arr[], int low, int high, int x){
+
             while(low <= high){
                 int mid = low + (high - low) / 2;
 
                 // Check if x is present at mid
-                if(arr[mid] == x){
+                if(copy_cars[mid].getBrand() == x){
                     return mid;
                 }
 
                 // If x greater, ignore left half
-                if(arr[mid] < x){
+                if(copy_cars[mid].getBrand() < x){
                     low = mid + 1;
                 }
 
@@ -460,16 +400,9 @@ class Allcar{
                 // If we reach here, then element was not present
                 return -1;
         }
-        int LinearSearch(int arr[], int n, int x){
-            for(int i = 0; i < n; i++){
-                if (arr[i] == x){
-                    return i;
-                }
-            }
-            return -1;
-        }
 
         void printCars()const{
+            system("CLS");
             for(const auto &c : copy_cars){
                 cout << "-----------------------------------------" << endl;
                 cout << "Car ID: " << c.getID() << endl;
@@ -482,10 +415,144 @@ class Allcar{
             cout << "-----------------------------------------" << endl;
         }
 };
+class allSoldCar : public car{
+    private:
+        vector <car> soldVec;
+        vector <car> copySoldVec;
+
+    public:
+        allSoldCar(){
+            saveSoldCar();
+        }
+
+        void saveSoldCar(){
+            string soldCarPath = "soldCar.txt";
+            ifstream soldFile(soldCarPath);
+            if(!soldFile){
+                cout << "Error opening " << soldCarPath << endl;
+            }
+            else{
+                string line;
+                car s;
+                while(getline(soldFile, line)){
+                    stringstream ss(line);
+                    string temp;
+                    getline(ss, temp, ',');
+                    s.setID(temp);
+                    getline(ss, temp, ',');
+                    s.setBrand(temp);
+                    getline(ss, temp, ',');
+                    s.setColor(temp);
+                    getline(ss, temp, ',');
+                    s.setCountry(temp);
+                    getline(ss, temp, ',');
+                    s.setYear(temp);
+                    getline(ss, temp, ',');
+                    s.setPrice(temp);
+                    soldVec.push_back(s);
+                }
+            }
+            copySoldVec = soldVec;
+        }
+
+        vector <car> &getCar(){
+            return copySoldVec;
+        }
+
+        void selectionSort() {
+            copySoldVec = soldVec;
+            int min_idx;
+
+            for(int i = 0; i < copySoldVec.size(); i++){
+                // Find the minimum element in unsorted array
+                min_idx = i;
+                for(int j = i + 1; j < copySoldVec.size(); j++){
+                    if(copySoldVec[j].getID() < copySoldVec[min_idx].getID()){
+                        min_idx = j;
+                    }
+                }
+                // Swap the found minimum element with the first element
+                if(min_idx != i){
+                    swap(copySoldVec[min_idx], copySoldVec[i]);
+                }
+            }
+        }
+
+        void countBrands(){
+            system("CLS");
+            selectionSort();
+            map <string, int> brandCount;
+
+            for (const auto& car : copySoldVec) {
+                brandCount[car.getBrand()]++;
+            }
+
+            // Transfer the map to a vector of pairs
+            vector <pair<string, int>> brandCountVec(brandCount.begin(), brandCount.end());
+
+            // Selection sort to sort the vector of pairs by count in descending order
+            for(int i = 0; i < brandCountVec.size() - 1; i++){
+                int max_idx = i;
+                for(int j = i + 1; j < brandCountVec.size(); j++){
+                    if(brandCountVec[j].second > brandCountVec[max_idx].second){
+                        max_idx = j;
+                    }
+                }
+                if (max_idx != i){
+                    swap(brandCountVec[max_idx], brandCountVec[i]);
+                }
+            }
+
+            for (const auto& [brand, count] : brandCountVec) {
+                cout << brand << " Count is " << count << endl;
+            }
+        }
+
+        int binarySearch(int low, int high, string x){
+            copySoldVec = soldVec;
+
+            while(low <= high){
+                int mid = low + (high - low) / 2;
+
+                // Check if x is present at mid
+                if(copySoldVec[mid].getBrand() == x){
+                    return mid;
+                }
+
+                // If x greater, ignore left half
+                if(copySoldVec[mid].getBrand() < x){
+                    low = mid + 1;
+                }
+
+                // If x is smaller, ignore right half
+                else{
+                    high = mid - 1;
+                }
+            }
+                // If we reach here, then element was not present
+                return -1;
+        }
+
+        void printCars()const{
+            system("CLS");
+            for(const auto &c : copySoldVec){
+                cout << "-----------------------------------------" << endl;
+                cout << "Car ID: " << c.getID() << endl;
+                cout << "Car Brand: " << c.getBrand() << endl;
+                cout << "Colour of the Car: " << c.getColor() << endl;
+                cout << "Country Manufacture: " <<c.getCountry() << endl;
+                cout << "Year produced: " << c.getYear() << endl;
+                cout << "Price of the car: RM" << c.getPrice() << endl;
+            }
+            cout << "-----------------------------------------" << endl;
+        }
+};
+
 class carSystem{
     private:
         allClient clients;
         Allcar cars;
+        allSoldCar vended;
         allAdmin admins;
         person currentUser;
         vector <car> chosenCar;
@@ -575,6 +642,7 @@ class carSystem{
             return false;
         }
         void clientPage(){
+            system("CLS");
             int choice;
             int flag;
             string line;
@@ -605,12 +673,13 @@ class carSystem{
                     continue; 
                 }
                 if(flag == 1){
-
+                    
                 }
 
             }
         }
         void selectPurchase(){
+            system("CLS");
             string line;
             int flag = 0;
             while(flag == 0){
@@ -627,6 +696,7 @@ class carSystem{
             }
         }
         void confirmPurchase(){
+            system("CLS");
             string flag;
             cout << "       Your Purchase" << endl;
             cout << "----------------------------" << endl;
@@ -647,8 +717,8 @@ class carSystem{
             }
         }
         void adminPage(){
+            system("CLS");
             int choice;
-            int flag;
             string line;
             while(1){
                 cout << "Edit page" << endl;
@@ -670,20 +740,19 @@ class carSystem{
                     removeCar();
                     break;
                 case 4:
+                    soldCar();
                     break;
                 case 5:
-                    flag = 1;
+                    return;
                 default:
                     cout << "Invalid Input";
-                    continue; 
-                }
-                if(flag == 1){
-                    return;
+                    continue;
                 }
             }
         }
 
         void addCar(){
+            system("CLS");
             string brand, color, country, year, newID;
             int num, price;
             string carPath = "car.txt";
@@ -712,6 +781,7 @@ class carSystem{
         }
 
         void editCar(){
+            system("CLS");
             string carPath = "car.txt";
             string id, color;
             int sb, price, flag;
@@ -761,6 +831,7 @@ class carSystem{
         }
 
         void removeCar(){
+            system("CLS");
             string carPath = "car.txt";
             string id;
             int flag;
@@ -793,8 +864,13 @@ class carSystem{
         }
 
         void soldCar(){
+            system("CLS");
+            int temp;
+            string line;
             string soldCarPath = "soldCar.txt";
-
+            vended.selectionSort();
+            vended.printCars();
+            vended.countBrands();
         }
 };
 int main(){
