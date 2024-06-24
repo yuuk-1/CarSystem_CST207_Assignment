@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+#include <ctime>
 
 using namespace std;
 
@@ -357,8 +358,6 @@ class Allcar{
         void selectionSort(){
             copy_cars = cars;
             int min_idx;
-            // One by one move boundary of
-            // unsorted subarray
             for(int i = 0; i < copy_cars.size(); i++){
                 // Find the minimum element in
                 // unsorted array
@@ -419,6 +418,7 @@ class allSoldCar : public car{
     private:
         vector <car> soldVec;
         vector <car> copySoldVec;
+        string timer;
 
     public:
         allSoldCar(){
@@ -459,53 +459,57 @@ class allSoldCar : public car{
             return copySoldVec;
         }
 
-        void selectionSort() {
+        void bubbleSort(){
             copySoldVec = soldVec;
-            int min_idx;
+            bool swaps;
 
-            for(int i = 0; i < copySoldVec.size(); i++){
-                // Find the minimum element in unsorted array
-                min_idx = i;
-                for(int j = i + 1; j < copySoldVec.size(); j++){
-                    if(copySoldVec[j].getID() < copySoldVec[min_idx].getID()){
-                        min_idx = j;
+            for(int i = 0; i < copySoldVec.size() - 1; i++){
+                swaps = false;
+                for(int j = 0; j < copySoldVec.size() - i - 1; j++){
+                    if(copySoldVec[j].getID() > copySoldVec[j + 1].getID()){
+                        swap(copySoldVec[j], copySoldVec[j + 1]);
+                        swaps = true;
                     }
                 }
-                // Swap the found minimum element with the first element
-                if(min_idx != i){
-                    swap(copySoldVec[min_idx], copySoldVec[i]);
+                if(!swaps){
+                    break;
                 }
             }
         }
 
         void countBrands(){
-            system("CLS");
-            selectionSort();
-            map <string, int> brandCount;
+            //system("CLS");
+            bubbleSort();
+            bool swaps;
+            int totalCount;
+            map<string, int> brandCount;
 
-            for (const auto& car : copySoldVec) {
+            for(const auto& car : copySoldVec){
                 brandCount[car.getBrand()]++;
             }
 
             // Transfer the map to a vector of pairs
-            vector <pair<string, int>> brandCountVec(brandCount.begin(), brandCount.end());
+            vector<pair<string, int>> brandCountVec(brandCount.begin(), brandCount.end());
 
-            // Selection sort to sort the vector of pairs by count in descending order
             for(int i = 0; i < brandCountVec.size() - 1; i++){
-                int max_idx = i;
-                for(int j = i + 1; j < brandCountVec.size(); j++){
-                    if(brandCountVec[j].second > brandCountVec[max_idx].second){
-                        max_idx = j;
+                swaps = false;
+                for(int j = 0; j < brandCountVec.size() - i - 1; j++){
+                    if(brandCountVec[j].second < brandCountVec[j + 1].second){
+                        swap(brandCountVec[j], brandCountVec[j + 1]);
+                        swaps = true;
                     }
                 }
-                if (max_idx != i){
-                    swap(brandCountVec[max_idx], brandCountVec[i]);
+                if(!swaps){
+                    break;
                 }
             }
-
-            for (const auto& [brand, count] : brandCountVec) {
+            
+            for(const auto& [brand, count] : brandCountVec){
                 cout << brand << " Count is " << count << endl;
+                totalCount += count;
             }
+            cout << "Total Number Car Sold: " << totalCount << endl;
+            cout << "-----------------------------------------" << endl;
         }
 
         int binarySearch(int low, int high, string x){
@@ -513,24 +517,30 @@ class allSoldCar : public car{
 
             while(low <= high){
                 int mid = low + (high - low) / 2;
-
                 // Check if x is present at mid
                 if(copySoldVec[mid].getBrand() == x){
                     return mid;
                 }
-
                 // If x greater, ignore left half
                 if(copySoldVec[mid].getBrand() < x){
                     low = mid + 1;
                 }
-
                 // If x is smaller, ignore right half
                 else{
                     high = mid - 1;
                 }
             }
-                // If we reach here, then element was not present
                 return -1;
+        }
+
+        string getTimer(){
+            // Get the timestamp for the current date and time
+            time_t timestamp;
+            time(&timestamp);
+
+            // Display the date and time represented by the timestamp
+            cout << ctime(&timestamp);
+            return timer;
         }
 
         void printCars()const{
@@ -865,15 +875,14 @@ class carSystem{
 
         void soldCar(){
             system("CLS");
-            int temp;
-            string line;
-            string soldCarPath = "soldCar.txt";
-            vended.selectionSort();
+            vended.bubbleSort();
             vended.printCars();
             vended.countBrands();
         }
 };
 int main(){
+    allSoldCar sc;
+    sc.getTimer();
     carSystem sys;
     sys.run();
 }
